@@ -1,5 +1,5 @@
-const { app, BrowserWindow } = require('electron')
-const loadDevtool = require('electron-load-devtool')
+import { app, BrowserWindow } from 'electron'
+import loadDevtool from 'electron-load-devtool'
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -11,7 +11,7 @@ const createWindow = () => {
 
     loadDevtool(loadDevtool.REACT_DEVELOPER_TOOLS)
     loadDevtool(loadDevtool.REDUX_DEVTOOLS)
-    win.openDevTools({mode: 'detach'})
+    win.webContents.openDevTools({mode: 'detach'})
 }
 
 app.on('ready', createWindow)

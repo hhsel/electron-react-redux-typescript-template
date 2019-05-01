@@ -1,7 +1,17 @@
 import React from 'react'
 import Button from '@material-ui/core/Button'
+import {
+    CounterActionTypes,
+} from '@actions'
 
-const Component = (props) => {
+interface IPropsIndexPage {
+    count: number
+    operations: number
+    incrementCount(): CounterActionTypes
+    decrementCount(): CounterActionTypes
+}
+
+const Component = (props: IPropsIndexPage) => {
     const { incrementCount, decrementCount } = props
     const { count, operations } = props
     return (

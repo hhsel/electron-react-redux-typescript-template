@@ -1,11 +1,12 @@
 import { connect } from 'react-redux'
 import Index from '@components/Index'
-import { incrementCount, decrementCount } from '@actions'
+import { decrementCount, incrementCount } from '@actions'
+import { AppState } from '@reducers'
 
-const mapStateToProps = state => state.counter
+const mapStateToProps = (state: AppState) => state.counter
 const mapDispatchToProps = {
-    incrementCount,
     decrementCount,
+    incrementCount,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Index)

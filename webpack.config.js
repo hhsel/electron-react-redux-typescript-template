@@ -1,4 +1,5 @@
 const path = require('path')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 const outputPath = path.join(__dirname, 'build')
 const rendererPath = path.join(__dirname, 'src', 'renderer')
@@ -7,24 +8,36 @@ const rendererPath = path.join(__dirname, 'src', 'renderer')
 const configMain = {
     mode: 'development',
     target: 'electron-main',
-    entry: ['./src/main/index.js'],
+    entry: ['./src/main/index.ts'],
     output: {
         filename: 'main.js',
         path: outputPath,
     },
     module: {
-        rules: [{
-            test: /\.js$/,
-            exclude: /node_modules/,
-            use: {
-                loader: 'babel-loader',
-                options: {
-                    presets: [
-                        '@babel/preset-env',
-                    ]
+        rules: [
+            // TSLint
+            {
+                enforce: 'pre',
+                test: /\.tsx?$/,
+                use: {
+                    loader: 'tslint-loader',
                 }
             },
-        }],
+            // Babel
+            {
+                test: /\.(js|ts)?$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: [
+                            '@babel/preset-env',
+                            '@babel/preset-typescript',
+                        ],
+                    }
+                },
+            },
+        ],
     },
 }
 
@@ -32,10 +45,13 @@ const configMain = {
 const configRenderer = {
     mode: 'development',
     target: 'electron-renderer',
-    entry: ['@babel/polyfill', './src/renderer/index.js'],
+    entry: ['@babel/polyfill', './src/renderer/index.tsx'],
+    devtool: 'inline-source-map',
     resolve: {
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
         alias: {
             // React Redux aliases
+            // You must sync these with tsconfig.json.compilerOptions.paths
             '@actions': path.join(rendererPath, 'actions'),
             '@stores': path.join(rendererPath, 'stores'),
             '@reducers': path.join(rendererPath, 'reducers'),
@@ -49,16 +65,17 @@ const configRenderer = {
     },
     module: {
         rules: [
-            // Enforce ESLint first
+            // TSLint
             {
                 enforce: 'pre',
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                loader: 'eslint-loader',
+                test: /\.tsx?$/,
+                use: {
+                    loader: 'tslint-loader',
+                }
             },
             // Babel
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(js|ts)x?$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader',
@@ -66,6 +83,7 @@ const configRenderer = {
                         presets: [
                             '@babel/preset-env',
                             '@babel/preset-react',
+                            '@babel/preset-typescript',
                         ],
                         plugins: [
                             '@babel/plugin-proposal-class-properties',
@@ -75,6 +93,7 @@ const configRenderer = {
             },
         ],
     },
+    plugins: [new ForkTsCheckerWebpackPlugin()],
 }
 
 module.exports = [configMain, configRenderer]
